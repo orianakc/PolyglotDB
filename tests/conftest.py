@@ -350,3 +350,7 @@ def acoustic_config(graph_db, textgrid_test_dir):
         parser = inspect_textgrid(acoustic_path)
         c.load(parser, acoustic_path)
     return config
+
+@pytest.fixture(scope='session')
+def nxt_test_dir(test_dir):
+    return os.path.join(test_dir, 'nxt')

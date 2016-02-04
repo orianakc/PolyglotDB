@@ -12,3 +12,5 @@ from .text_transcription import inspect_transcription
 from .textgrid import inspect_textgrid
 
 from .timit import inspect_timit
+
+from .nxt import inspect_nxt
