@@ -20,7 +20,10 @@ def inspect_nxt(word_path):
     :class:`~polyglotdb.io.parsers.nxt.NxtParser`
         Auto-detected parser for NXT format files.
     """
-    annotation_types = [OrthographyTier('word', 'word')]
-    hierarchy = Hierarchy({'word': None})
+    annotation_types = [OrthographyTier('word', 'word'), 
+    						# OrthographyTier('syllable','syllable'), 
+    						OrthographyTier('surface_transcription','surface_transcription')
+    						]
+    hierarchy = Hierarchy({'surface_transcription':'word','word': None})
 
     return NxtParser(annotation_types, hierarchy, make_transcription = False)
