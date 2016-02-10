@@ -26,7 +26,7 @@ def inspect_buckeye(word_path):
                             OrthographyTier('category', 'word'),
                             SegmentTier('surface_transcription', 'surface_transcription')]
     annotation_types[1].trans_delimiter = ' '
-    annotation_types[-1].type_property = False
+    annotation_types[-2].type_property = False
     hierarchy = Hierarchy({'surface_transcription': 'word', 'word': None})
 
     return BuckeyeParser(annotation_types, hierarchy, make_transcription = False)

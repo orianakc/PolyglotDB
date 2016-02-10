@@ -24,6 +24,7 @@ class NxtParser(BaseParser):
     call_back : callable, optional
         Function to output progress messages
     '''
+    _extensions = ['.phonwords.xml']
     def parse_discourse(self, word_path):
         # directory path that is associated with only words
         # use path to make the names of all the associated files
@@ -57,14 +58,13 @@ class NxtParser(BaseParser):
         assert(phones_tree.firstChild.tagName == "nite:phoneme_stream")
         phones = phones_tree.getElementsByTagName('ph')
         
-        for p in phones[:11]:
+        for p in phones:
             phones_list = []
             p.setIdAttribute('nite:id')
             phone = p.firstChild.data
             beg = float(p.getAttribute('nite:start'))
             end = float(p.getAttribute('nite:end'))
             phones_list.append((phone,beg,end))
-            print(phones_list)
             # self.annotation_types[1].add(phones_list)
         
         for w in words:
@@ -85,16 +85,19 @@ class NxtParser(BaseParser):
             for i in child_syllables:
                 child_phone_ids = getChildren(i)
                 for k in child_phone_ids:
-                    print(k)
-                    child_phones.append(phones_tree.getElementById(k))
+                    phone = phones_tree.getElementById(k)
+                    if phone is not None:
+                        child_phones.append(phones_tree.getElementById(k))
+                    else:
+                       raise(Exception("no phone : {}".format(k)))
+
             if child_phones == []:
                 self.annotation_types[1].add([('??',beg,end)])
             else:
-                print(word,child_syllable_data,child_phones)
-                try:
-                    self.annotation_types[1].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
-                except:
-                    continue
+                # try:
+                self.annotation_types[1].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
+                # except:
+                #     continue
 
 
             
