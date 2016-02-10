@@ -4,6 +4,8 @@ import sys
 import logging
 import socket
 
+BASE_DIR = os.path.expanduser('~/Documents/SCT')
+
 def setup_logger(logger_name, log_file, level=logging.INFO):
     l = logging.getLogger(logger_name)
     formatter = logging.Formatter('%(asctime)s : %(message)s')
@@ -54,7 +56,7 @@ class CorpusConfig(object):
         self.graph_host = 'localhost'
         self.graph_port = 7474
 
-        self.base_dir = os.path.join(os.path.expanduser('~/Documents/SCT'), self.corpus_name)
+        self.base_dir = os.path.join(BASE_DIR, self.corpus_name)
 
         self.log_level = logging.DEBUG
 
@@ -91,6 +93,7 @@ class CorpusConfig(object):
 
     def init(self):
         os.makedirs(self.log_dir, exist_ok = True)
+        return
         setup_logger('{}_loading'.format(self.corpus_name), os.path.join(self.log_dir, 'load.log'), level = self.log_level)
         setup_logger('{}_querying'.format(self.corpus_name), os.path.join(self.log_dir, 'query.log'), level = self.log_level)
         setup_logger('{}_acoustics'.format(self.corpus_name), os.path.join(self.log_dir, 'acoustics.log'), level = self.log_level)

@@ -14,4 +14,7 @@ from .textgrid import TextgridParser
 
 from .timit import TimitParser
 
+from .speaker import FilenameSpeakerParser, DirectorySpeakerParser
+
 from .nxt import NxtParser
+
