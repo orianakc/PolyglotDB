@@ -21,10 +21,11 @@ def inspect_nxt(word_path):
         Auto-detected parser for NXT format files.
     """
     annotation_types = [OrthographyTier('word', 'word'),
-    						#GroupingTier('syllable','syllable'),
     						#OrthographyTier('stress','syllable'), 
-    						SegmentTier('surface_transcription','surface_transcription')
+    						SegmentTier('phone','phone'),
+    						OrthographyTier('alignment_issue','phone'), # FIX ME LATER
+    						OrthographyTier('stress','word')
     						]
-    hierarchy = Hierarchy({'surface_transcription':'word','word': None})
+    hierarchy = Hierarchy({'phone':'word','word': None})
 
     return NxtParser(annotation_types, hierarchy, make_transcription = False)

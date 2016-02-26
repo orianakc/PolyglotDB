@@ -82,16 +82,24 @@ class PGAnnotationType(object):
 
     def lookup(self, timepoint, speaker = None):
         if speaker is None:
-            return next((x for x in self._list
-                            if timepoint >= x.begin and
-                                timepoint <= x.end),
-                        None)
+            for x in self._list:
+                if x.begin < x.end:
+                    if timepoint >= x.begin and timepoint <= x.end:
+                        return x
+                else:
+                    if timepoint >= x.end and timepoint <= x.begin:
+                        return x
         else:
-            return next((x for x in self._list
-                            if x.speaker == speaker and
-                                timepoint >= x.begin and
-                                timepoint <= x.end),
-                        None)
+            for x in self._list:
+                if x.speaker != speaker:
+                    continue
+                if x.begin < x.end:
+                    if timepoint >= x.begin and timepoint <= x.end:
+                        return x
+                else:
+                    if timepoint >= x.end and timepoint <= x.begin:
+                        return x
+        return None
 
     def lookup_range(self, begin, end, speaker = None):
         if speaker is None:

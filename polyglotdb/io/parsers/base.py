@@ -140,7 +140,11 @@ class BaseParser(object):
             if st is not None:
                 for a in annotation_types[k]:
                     super_annotation = annotation_types[st].lookup(a.midpoint, speaker = a.speaker)
-                    a.super_id = super_annotation.id
+                    try:
+                        a.super_id = super_annotation.id
+                    except AttributeError:
+                        print(a.begin, a.end, st, a.label, a.midpoint)
+                        raise
             if self.make_transcription and segment_type is not None and v.is_word:
                 v.type_property_keys.update(['transcription'])
                 for a in annotation_types[k]:

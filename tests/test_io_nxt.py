@@ -17,7 +17,7 @@ def test_discourse_nxt(graph_db,nxt_test_dir):
         q = c.query_graph(c.word)
         assert(q.count()==28)
         
-        # q = c.query_graph(c.surface_transcription)
+        # q = c.query_graph(c.phone)
         # assert(q.count()==85) # Should be equal to 85, but problem with parsing in the <SIL> phones right now.
 
 

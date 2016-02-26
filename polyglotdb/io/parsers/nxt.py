@@ -25,6 +25,14 @@ class NxtParser(BaseParser):
         Function to output progress messages
     '''
     _extensions = ['.phonwords.xml']
+    debug = True
+
+    def __getitem__(self, key):
+        for at in self.annotation_types:
+            if at.name == key:
+                return at
+        raise(KeyError('No annotation type named {} found.'.format(key)))
+
     def parse_discourse(self, word_path):
         # directory path that is associated with only words
         # use path to make the names of all the associated files
@@ -65,7 +73,6 @@ class NxtParser(BaseParser):
             beg = float(p.getAttribute('nite:start'))
             end = float(p.getAttribute('nite:end'))
             phones_list.append((phone,beg,end))
-            # self.annotation_types[1].add(phones_list)
         
         for w in words:
             w.setIdAttribute('nite:id')
@@ -74,6 +81,7 @@ class NxtParser(BaseParser):
             end = float(w.getAttribute('nite:end'))
             stress = w.getAttribute('stressProfile')
             self.annotation_types[0].add([(word,beg,end)])
+            self.annotation_types[2].add([(stress,beg,end)])
 
             # Get syllables belonging to word
             child_syllable_ids = getChildren(w)
@@ -82,10 +90,19 @@ class NxtParser(BaseParser):
                 child_syllables.append(syllables_tree.getElementById(i))
             child_syllable_data = [(s.getAttribute('nite:id'),beg,end) for s in child_syllables]
             child_phones = []
+            alignment_errors = []
             for i in child_syllables:
                 child_phone_ids = getChildren(i)
                 for k in child_phone_ids:
                     phone = phones_tree.getElementById(k)
+                    if float(phone.getAttribute('nite:start')) > float(phone.getAttribute('nite:end')):
+                        if self.debug:
+                            print('Warning: {} in {} has negative duration (id = {}; begin = {}; end = {})'.format(
+                                        phone.firstChild.data, file_name, phone.getAttribute('nite:id'), phone.getAttribute('nite:start'),
+                                        phone.getAttribute('nite:end')))
+                        alignment_errors.append(('negative duration', phone.getAttribute('nite:start'), phone.getAttribute('nite:end')))
+                    else:
+                        alignment_errors.append(('none', phone.getAttribute('nite:start'), phone.getAttribute('nite:end')))
                     if phone is not None:
                         child_phones.append(phones_tree.getElementById(k))
                     else:
@@ -93,11 +110,11 @@ class NxtParser(BaseParser):
 
             if child_phones == []:
                 self.annotation_types[1].add([('??',beg,end)])
+                #self['phone'].add([('??',beg,end)])
             else:
-                # try:
                 self.annotation_types[1].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
-                # except:
-                #     continue
+                self['alignment_error'].add(alignment_errors) # EXPERIMENTAL!!
+
 
 
             
@@ -115,8 +132,11 @@ class NxtParser(BaseParser):
             # self.annotation_types[2].add([(phone,beg,end)])
 
 
-
+        # print("Working on file {}".format(speaker_name))
+        
         pg_annotations = self._parse_annotations()
+
+
         data = DiscourseData(re.sub('[.]','',speaker_name), pg_annotations, self.hierarchy)
 
         for a in self.annotation_types:
