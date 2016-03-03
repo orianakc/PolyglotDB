@@ -72,7 +72,21 @@ class NxtParser(BaseParser):
             phone = p.firstChild.data
             beg = float(p.getAttribute('nite:start'))
             end = float(p.getAttribute('nite:end'))
-            phones_list.append((phone,beg,end))
+            alignment_issue = True if beg > end else False
+            # experiment with adding all the phones at once!
+            self['phone'].add([(phone,beg,end)]) # phones_list.append((phone,beg,end)) 
+            # need to make a dummy word for silence phones
+            if phone == 'SIL':
+                self['word'].add([('SIL',beg,end)])
+                self['stress'].add([('SIL',beg,end)])
+
+            if alignment_issue:
+                self['alignment_issue'].add([('negative duration',beg,end)])
+                continue
+            self['alignment_issue'].add([('none',beg,end)])
+
+
+
         
         for w in words:
             w.setIdAttribute('nite:id')
@@ -84,36 +98,36 @@ class NxtParser(BaseParser):
             self['stress'].add([(stress,beg,end)])
 
             # Get syllables belonging to word
-            child_syllable_ids = getChildren(w)
-            child_syllables = []
-            for i in child_syllable_ids:
-                child_syllables.append(syllables_tree.getElementById(i))
-            child_syllable_data = [(s.getAttribute('nite:id'),beg,end) for s in child_syllables]
-            child_phones = []
-            alignment_errors = []
-            for i in child_syllables:
-                child_phone_ids = getChildren(i)
-                for k in child_phone_ids:
-                    phone = phones_tree.getElementById(k)
-                    if float(phone.getAttribute('nite:start')) > float(phone.getAttribute('nite:end')):
-                        if self.debug:
-                            print('Warning: {} in {} has negative duration (id = {}; begin = {}; end = {})'.format(
-                                        phone.firstChild.data, file_name, phone.getAttribute('nite:id'), phone.getAttribute('nite:start'),
-                                        phone.getAttribute('nite:end')))
-                        alignment_errors.append(('negative duration', float(phone.getAttribute('nite:start')), float(phone.getAttribute('nite:end'))))
-                    else:
-                        alignment_errors.append(('none', float(phone.getAttribute('nite:start')), float(phone.getAttribute('nite:end'))))
-                    if phone is not None:
-                        child_phones.append(phones_tree.getElementById(k))
-                    else:
-                       raise(Exception("no phone : {}".format(k)))
+            # child_syllable_ids = getChildren(w)
+            # child_syllables = []
+            # for i in child_syllable_ids:
+            #     child_syllables.append(syllables_tree.getElementById(i))
+            # child_syllable_data = [(s.getAttribute('nite:id'),beg,end) for s in child_syllables]
+            # child_phones = []
+            # alignment_errors = []
+            # for i in child_syllables:
+            #     child_phone_ids = getChildren(i)
+            #     for k in child_phone_ids:
+            #         phone = phones_tree.getElementById(k)
+            #         if float(phone.getAttribute('nite:start')) > float(phone.getAttribute('nite:end')):
+            #             if self.debug:
+            #                 print('Warning: {} in {} has negative duration (id = {}; begin = {}; end = {})'.format(
+            #                             phone.firstChild.data, file_name, phone.getAttribute('nite:id'), phone.getAttribute('nite:start'),
+            #                             phone.getAttribute('nite:end')))
+            #             alignment_errors.append(('negative duration', float(phone.getAttribute('nite:start')), float(phone.getAttribute('nite:end'))))
+            #         else:
+            #             alignment_errors.append(('none', float(phone.getAttribute('nite:start')), float(phone.getAttribute('nite:end'))))
+            #         if phone is not None:
+            #             child_phones.append(phones_tree.getElementById(k))
+            #         else:
+            #            raise(Exception("no phone : {}".format(k)))
 
-            if child_phones == []:
-                self['phone'].add([('??',beg,end)])
-                # self['phone'].add([('??',beg,end)])
-            else:
-                self['phone'].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
-                self['alignment_issue'].add(alignment_errors) # EXPERIMENTAL!!
+            # if child_phones == []:
+            #     self['phone'].add([('??',beg,end)])
+            #     # self['phone'].add([('??',beg,end)])
+            # else:
+            #     self['phone'].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
+            #     self['alignment_issue'].add(alignment_errors) # EXPERIMENTAL!!
 
 
 

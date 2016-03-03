@@ -17,7 +17,7 @@ def test_discourse_nxt(graph_db,nxt_test_dir):
         c.load(parser, word_path)
         q = c.query_graph(c.word)
         q = q.filter(c.word.discourse.name=='testA')
-        assert(q.count()==28)
+        assert(q.count()==36)
         # assert(False)
         
         # q = c.query_graph(c.phone)
