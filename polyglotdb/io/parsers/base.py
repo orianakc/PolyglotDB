@@ -44,6 +44,12 @@ class BaseParser(object):
             return False
         return True
 
+    def __getitem__(self, key):
+        for at in self.annotation_types:
+            if at.name == key:
+                return at
+        raise(KeyError('No annotation type named {} found.'.format(key)))
+
     def _parse_annotations(self):
         annotation_types = {}
         segment_type = None
