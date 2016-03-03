@@ -23,8 +23,8 @@ def inspect_nxt(word_path):
     annotation_types = [OrthographyTier('word', 'word'),
     						#OrthographyTier('stress','syllable'), 
     						SegmentTier('phone','phone'),
-    						OrthographyTier('alignment_issue','phone'), # FIX ME LATER
-    						OrthographyTier('stress','word')
+    						OrthographyTier('alignment_issue','phone') 
+    						OrthographyTier('stress','word'),
     						]
     hierarchy = Hierarchy({'phone':'word','word': None})
 

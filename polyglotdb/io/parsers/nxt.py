@@ -80,8 +80,8 @@ class NxtParser(BaseParser):
             beg = float(w.getAttribute('nite:start'))
             end = float(w.getAttribute('nite:end'))
             stress = w.getAttribute('stressProfile')
-            self.annotation_types[0].add([(word,beg,end)])
-            self.annotation_types[2].add([(stress,beg,end)])
+            self['word'].add([(word,beg,end)]) # self.annotation_types[0].add([(word,beg,end)])
+            self['stress'].add([(stress,beg,end)])
 
             # Get syllables belonging to word
             child_syllable_ids = getChildren(w)
@@ -100,20 +100,20 @@ class NxtParser(BaseParser):
                             print('Warning: {} in {} has negative duration (id = {}; begin = {}; end = {})'.format(
                                         phone.firstChild.data, file_name, phone.getAttribute('nite:id'), phone.getAttribute('nite:start'),
                                         phone.getAttribute('nite:end')))
-                        alignment_errors.append(('negative duration', phone.getAttribute('nite:start'), phone.getAttribute('nite:end')))
+                        alignment_errors.append(('negative duration', float(phone.getAttribute('nite:start')), float(phone.getAttribute('nite:end'))))
                     else:
-                        alignment_errors.append(('none', phone.getAttribute('nite:start'), phone.getAttribute('nite:end')))
+                        alignment_errors.append(('none', float(phone.getAttribute('nite:start')), float(phone.getAttribute('nite:end'))))
                     if phone is not None:
                         child_phones.append(phones_tree.getElementById(k))
                     else:
                        raise(Exception("no phone : {}".format(k)))
 
             if child_phones == []:
-                self.annotation_types[1].add([('??',beg,end)])
-                #self['phone'].add([('??',beg,end)])
+                self['phone'].add([('??',beg,end)])
+                # self['phone'].add([('??',beg,end)])
             else:
-                self.annotation_types[1].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
-                self['alignment_error'].add(alignment_errors) # EXPERIMENTAL!!
+                self['phone'].add([(ph.firstChild.data,float(ph.getAttribute('nite:start')),float(ph.getAttribute('nite:end')) )for ph in child_phones])
+                self['alignment_issue'].add(alignment_errors) # EXPERIMENTAL!!
 
 
 
