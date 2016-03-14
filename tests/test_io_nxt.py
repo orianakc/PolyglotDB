@@ -18,10 +18,12 @@ def test_discourse_nxt(graph_db,nxt_test_dir):
         q = c.query_graph(c.word)
         q = q.filter(c.word.discourse.name=='testA')
         assert(q.count()==36)
-        # assert(False)
         
-        # q = c.query_graph(c.phone)
-        # assert(q.count()==85) # Should be equal to 85, but problem with parsing in the <SIL> phones right now.
+        # test that all phones including SIL are properly loaded. 
+        q = c.query_graph(c.phone).filter(c.phone.discourse.name=='testA')
+        assert(q.count()==85)
+
+        # Test that dummy 'SIL' words are working properly
 
 
         # syllabics = ['ah','ax','ih','ay','ih']

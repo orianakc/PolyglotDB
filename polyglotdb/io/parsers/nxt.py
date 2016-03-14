@@ -76,24 +76,41 @@ class NxtParser(BaseParser):
             # experiment with adding all the phones at once!
             self['phone'].add([(phone,beg,end)]) # phones_list.append((phone,beg,end)) 
             # need to make a dummy word for silence phones
-            if phone == 'SIL':
-                self['word'].add([('SIL',beg,end)])
-                self['stress'].add([('SIL',beg,end)])
+            #if phone == 'SIL':
+            #    self['word'].add([('SIL',beg,end)])
+            #    self['stress'].add([('SIL',beg,end)])
 
             if alignment_issue:
                 self['alignment_issue'].add([('negative duration',beg,end)])
                 continue
             self['alignment_issue'].add([('none',beg,end)])
 
+        breaks_tree = None
+        try:
+            breaks_tree = minidom.parse(os.path.join(parent_dir,'breaks',".".join([speaker_name,'breaks','xml'])))
+        except:
+            print('No break annotation found for {}'.format(".".join([speaker_name,'breaks','xml'])))
 
+        if breaks_tree:
+            break_list = breaks_tree.getElementsByTagName('break')
+            self['break'].add([(i.getAttribute('index'),i.getAttribute('nite:start') ) for i in break_list])
 
-        
-        for w in words:
+            
+
+        for i,w in enumerate(words):
             w.setIdAttribute('nite:id')
             word = w.getAttribute('orth')
             beg = float(w.getAttribute('nite:start'))
             end = float(w.getAttribute('nite:end'))
             stress = w.getAttribute('stressProfile')
+            if i > 0:
+                prev_end = float(words[i-1].getAttribute('nite:end'))
+                if beg != prev_end:
+                    self['word'].add([('SIL', prev_end, beg)])
+                    self['stress'].add([('SIL', prev_end, beg)])
+            else:
+                self['word'].add([('SIL',0, beg)])
+                self['stress'].add([('SIL', 0, beg)])
             self['word'].add([(word,beg,end)]) # self.annotation_types[0].add([(word,beg,end)])
             self['stress'].add([(stress,beg,end)])
 
@@ -145,6 +162,8 @@ class NxtParser(BaseParser):
             # end = p.getAttribute('nite:end')
             # self.annotation_types[2].add([(phone,beg,end)])
 
+        self['word'].add([('SIL',end, float(p.getAttribute('nite:end')))])
+        self['stress'].add([('SIL', end,float(p.getAttribute('nite:end')))])
 
         # print("Working on file {}".format(speaker_name))
         
@@ -185,6 +204,8 @@ def getChildren(node):
             childIDs.append(prefix+str(n))
         # print childIDs
     return childIDs
+
+
 
 
 
